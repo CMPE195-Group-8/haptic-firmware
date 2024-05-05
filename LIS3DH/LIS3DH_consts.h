@@ -1,0 +1,15 @@
+#pragma once
+#define ctrl1 0x20
+#define ctrl2 0x21
+#define ctrl3 0x22
+#define ctrl4 0x23
+#define ctrl5 0x24
+#define ctrl6 0x25
+#define x_l 0x28
+#define x_h 0x29
+#define y_l 0x2a
+#define y_h 0x2b
+#define z_l 0x2c
+#define z_h 0x2d
+#define fifo_ctrl 0x2e
+#define fifo_src 0x2f
