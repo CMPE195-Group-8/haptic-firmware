@@ -1,4 +1,5 @@
 #include "dto.h"
+#include <string.h>
 
 uint32_t clamp2(uint32_t val, uint32_t min, uint32_t max){
 	if(val > max){
@@ -60,6 +61,9 @@ finger_t finger_init(LIS3DH_t imu_l1,
 	finger.buzzer_pin = buzzer_pin;
 	finger.buzzer_port = buzzer_port;
 	finger.buzzer_duration = 0;
+
+	finger.buffer_index = 0;
+	memset(finger.curl_buffer, 0, BUFFER_SIZE * sizeof(uint32_t));
 	return finger;
 }
 
@@ -91,16 +95,25 @@ void hand_buzz(hand_t *hand){
 	}
 }
 
-uint32_t finger_get_curl(finger_t finger){
-	uint32_t tmp;
-	tmp = (uint32_t)(LIS3DH_get_angle(finger.imu_l1) - LIS3DH_get_angle(finger.imu_l2));
-	tmp = clamp2(1000 * tmp/90, 0, 1000);
-	if (tmp > finger.curr_percentage && tmp > 900){
-		finger_buzzer_on(finger);
-	}else{
-		finger_buzzer_off(finger);
+uint32_t finger_get_curl(finger_t *finger){
+	uint32_t curl;
+	curl= (uint32_t)(LIS3DH_get_angle(finger->imu_l1) - LIS3DH_get_angle(finger->imu_l2));
+	curl = clamp2(1000 * curl/90, 0, 1000);
+	finger->curl_buffer[finger->buffer_index] = curl & ~(0x3);
+	finger->buffer_index++;
+	finger->buffer_index %= BUFFER_SIZE;
+
+	uint32_t ave = 0;
+	for(int i = 0; i < BUFFER_SIZE; i++){
+		ave += finger->curl_buffer[i];
 	}
-	return tmp;
+	ave /= BUFFER_SIZE;
+	if (curl > finger->curr_percentage || ave > 900){
+		finger_buzzer_on(*finger);
+	}else{
+		finger_buzzer_off(*finger);
+	}
+	return ave;
 }
 
 float finger_set_servo_inverted(finger_t* finger, uint32_t percentage){

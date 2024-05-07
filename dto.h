@@ -9,12 +9,8 @@
 #define SRC_DTO_H_
 #include "LIS3DH/LIS3DH.h"
 #include "MG90S/MG90S.h"
-/// shit mc sends back
 
-typedef struct mc_t{
-
-}mc_t;
-
+#define BUFFER_SIZE 16
 /// 1 servo 1 buzzer
 typedef struct finger_t{
 	LIS3DH_t imu_l1, imu_l2;
@@ -22,9 +18,13 @@ typedef struct finger_t{
 	uint32_t curr_percentage;
 	float min_angle, max_angle;
 
+	uint32_t curl_buffer[BUFFER_SIZE];
+	uint8_t buffer_index;
+
 	uint16_t buzzer_pin;
 	GPIO_TypeDef* buzzer_port;
 	int16_t buzzer_duration;
+
 }finger_t;
 
 /// 5 fingers, 1 heatpack
@@ -60,7 +60,7 @@ finger_t finger_init(LIS3DH_t imu_l1,
 
 uint32_t hand_set_buzz(hand_t *hand, uint32_t whole, uint32_t decimal);
 void hand_buzz(hand_t *hand);
-uint32_t finger_get_curl(finger_t finger);
+uint32_t finger_get_curl(finger_t* finger);
 float finger_set_servo(finger_t finger, uint32_t percentage);
 float finger_set_servo_inverted(finger_t* finger, uint32_t percentage);
 void finger_buzzer_on(finger_t finger);

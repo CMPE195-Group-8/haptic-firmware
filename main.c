@@ -42,7 +42,7 @@
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 
-void driver_tranfer(hand_t hand);
+void driver_tranfer(hand_t*);
 static inline void poll_uart(hand_t*);
 /* USER CODE END PD */
 
@@ -205,7 +205,7 @@ int main(void)
   while (1)
   {
 	  poll_uart(&hand);
-	  driver_tranfer(hand);
+	  driver_tranfer(&hand);
 	  hand_buzz(&hand);
 //	  printf("Buzzing for %lu cycles\n", hand.buzz_cycles);
 //	  printf("TF min: %f\n", test_finger.min_angle);
@@ -832,14 +832,14 @@ PUTCHAR_PROTOTYPE
 }
 
 
-void driver_tranfer(hand_t hand){
+void driver_tranfer(hand_t *hand){
 	const int closed = 750;
 	uint16_t thumb_curl, index_curl, middle_curl, ring_curl, pinky_curl;
-	thumb_curl = finger_get_curl(hand.thumb);
-	index_curl = finger_get_curl(hand.index);
-	middle_curl = finger_get_curl(hand.middle);
-	ring_curl = finger_get_curl(hand.ring);
-	pinky_curl = finger_get_curl(hand.pinky);
+	thumb_curl = finger_get_curl(&hand->thumb);
+	index_curl = finger_get_curl(&hand->index);
+	middle_curl = finger_get_curl(&hand->middle);
+	ring_curl = finger_get_curl(&hand->ring);
+	pinky_curl = finger_get_curl(&hand->pinky);
 	int is_index = index_curl > closed;
 	int is_middle = middle_curl > closed;
 	int is_ring = ring_curl > closed;
